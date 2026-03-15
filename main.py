@@ -1,12 +1,3 @@
-"""
-Bycatch Risk Prediction — FastAPI Backend
------------------------------------------
-Requirements: pip install fastapi uvicorn pandas scikit-learn openpyxl
-
-Run:          uvicorn main:app --reload
-API docs:     http://127.0.0.1:8000/docs
-"""
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -21,20 +12,19 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-# ---------------------------------------------------------------------------
-# MODEL TRAINING (runs once on startup)
-# ---------------------------------------------------------------------------
-
+# Data paths and seeding randomization
 DATA_PATH  = "bycatch_dataset.xlsx"
 SHEET_NAME = "Bycatch_Data"
 SEED       = 42
 
+# Features of dataset
 FEATURE_COLS = [
     "Latitude (\u00b0)", "Longitude (\u00b0)", "Sea Surface Temp (\u00b0C)",
     "Current Speed (kn)", "dir_enc", "Hour of Day (0\u201323)",
     "mig_enc", "sp_enc", "fate_enc",
 ]
 
+# Building and training model based on data, ran each time on startup
 def build_model():
     df = pd.read_excel(DATA_PATH, sheet_name=SHEET_NAME)
     df["label"] = (df["Bycatch Present"] == "Present").astype(int)
@@ -61,14 +51,9 @@ def build_model():
     model.fit(X_train, y_train)
     return model, encoders
 
-print("Training model...")
 MODEL, ENCODERS = build_model()
-print("Model ready.")
 
-# ---------------------------------------------------------------------------
-# VALID CATEGORIES (returned to the UI for dropdowns)
-# ---------------------------------------------------------------------------
-
+# Make valid values for dropdown
 VALID = {
     "current_dir": ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
     "migration":   ["Northward", "Southward", "Eastward", "Westward", "Stationary"],
@@ -76,10 +61,7 @@ VALID = {
     "fate":        ["Kept", "Discarded"],
 }
 
-# ---------------------------------------------------------------------------
-# FASTAPI APP
-# ---------------------------------------------------------------------------
-
+# Initializing app
 app = FastAPI(title="Bycatch Risk API", version="1.0")
 
 app.add_middleware(
@@ -89,13 +71,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve static files (your HTML UI) from a 'static' folder
+# Serve static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# ---------------------------------------------------------------------------
-# REQUEST / RESPONSE SCHEMAS
-# ---------------------------------------------------------------------------
-
+# Request from input fields
 class PredictRequest(BaseModel):
     lat:           float = Field(..., ge=-35,  le=35,  example=5.0)
     lon:           float = Field(..., ge=40,   le=160, example=65.0)
@@ -107,15 +86,11 @@ class PredictRequest(BaseModel):
     species:       str   = Field(...,                  example="Yellowfin Tuna")
     fate:          str   = Field(...,                  example="Kept")
 
+# Prediction response
 class PredictResponse(BaseModel):
     probability: float
     risk_label:  str
     risk_pct:    str
-
-# ---------------------------------------------------------------------------
-# ROUTES
-# ---------------------------------------------------------------------------
-
 
 @app.get("/")
 def serve_home():
@@ -128,16 +103,14 @@ def serve_assessor():
     """Serve the risk assessor UI."""
     return FileResponse("static/index.html")
 
-
+# Get valid dropdown values to be used in UI
 @app.get("/options")
 def get_options():
-    """Return valid dropdown values for the UI."""
     return VALID
 
-
+# Run single prediction from the model
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest):
-    """Run a single bycatch risk prediction."""
     def encode(col, val):
         le = ENCODERS[col]
         return int(le.transform([val])[0]) if val in le.classes_ else 0

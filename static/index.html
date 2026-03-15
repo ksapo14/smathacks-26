@@ -51,7 +51,6 @@
             overflow-x: hidden;
         }
 
-        /* Animated ocean background */
         body::before {
             content: '';
             position: fixed;
@@ -63,7 +62,6 @@
             z-index: 0;
         }
 
-        /* Subtle grid texture */
         body::after {
             content: '';
             position: fixed;
@@ -84,7 +82,6 @@
             padding: 48px 24px 80px;
         }
 
-        /* ── Header ──────────────────────────────── */
         header {
             margin-bottom: 52px;
             animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -132,7 +129,6 @@
             max-width: 480px;
         }
 
-        /* ── Layout ──────────────────────────────── */
         .layout {
             display: grid;
             grid-template-columns: 1fr 340px;
@@ -146,7 +142,6 @@
             }
         }
 
-        /* ── Form card ───────────────────────────── */
         .form-card {
             background: var(--ocean-mid);
             border: 1px solid var(--border);
@@ -242,7 +237,6 @@
             margin: 4px 0;
         }
 
-        /* Predict button */
         .predict-btn {
             width: 100%;
             padding: 14px 20px;
@@ -287,7 +281,6 @@
             flex-shrink: 0;
         }
 
-        /* ── Result panel ────────────────────────── */
         .result-panel {
             background: var(--ocean-mid);
             border: 1px solid var(--border);
@@ -345,7 +338,6 @@
             fill: var(--text-muted);
         }
 
-        /* Risk label badge */
         .risk-badge {
             display: flex;
             align-items: center;
@@ -403,7 +395,6 @@
             box-shadow: 0 0 6px var(--green);
         }
 
-        /* Stats row */
         .stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -434,7 +425,6 @@
             transition: color 0.4s;
         }
 
-        /* Probability bar */
         .bar-label {
             display: flex;
             justify-content: space-between;
@@ -484,7 +474,6 @@
             color: var(--text);
         }
 
-        /* Error */
         .error-box {
             display: none;
             margin-top: 14px;
@@ -498,7 +487,6 @@
             line-height: 1.5;
         }
 
-        /* Animations */
         @keyframes rise {
             from {
                 opacity: 0;
@@ -523,15 +511,12 @@
     <div class="page">
 
         <header>
-            <p class="eyebrow">Gradient Boosting · AUC 0.986 · 9 features</p>
+            <p class="eyebrow">Don't take chances with bycatch</p>
             <h1><em>DeepWatch</em> Bycatch <em>Risk</em><br>Predictor</h1>
-            <p class="subtitle">Enter fishing conditions below. The model runs on the server and returns the estimated
-                probability of bycatch presence in real time.</p>
+            <p class="subtitle">Enter fishing conditions below. Our algorithm will calulate probability of bycatch.</p>
         </header>
 
         <div class="layout">
-
-            <!-- Form -->
             <div class="form-card">
                 <form id="form" autocomplete="off">
 
@@ -541,7 +526,7 @@
                             <label for="lat">Latitude (°)</label>
                             <input type="number" id="lat" step="0.0001" min="-35" max="35" placeholder="e.g. 5.0"
                                 required>
-                            <span class="hint">–35 to +35</span>
+                            <span class="hint">-35 to +35</span>
                         </div>
                         <div class="field">
                             <label for="lon">Longitude (°)</label>
@@ -604,12 +589,8 @@
 
                 </form>
             </div>
-
-            <!-- Result panel -->
             <div class="result-panel">
                 <p class="section-title">Model output</p>
-
-                <!-- Gauge SVG -->
                 <div class="gauge-wrap">
                     <svg viewBox="0 0 160 90" width="160" height="90" overflow="visible">
                         <!-- Background arc: semicircle, r=62, center 80,85 -->
@@ -648,7 +629,7 @@
                     <div class="bar-fill" id="bar-fill"></div>
                 </div>
 
-                <!-- Model info -->
+                Model info
                 <div class="model-info">
                     <div class="model-info-row">
                         <span class="model-info-key">Algorithm</span>
@@ -668,17 +649,14 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
-        // ── Config ───────────────────────────────────────────────────────────────
-        // Change this to your Render URL when deployed.
-        // Leave as empty string '' when running locally (same origin via FastAPI).
+        // Setting origin for api
         const API = '';
 
-        // ── Populate dropdowns from /options ─────────────────────────────────────
+        // Populate dropdowns
         async function loadOptions() {
             try {
                 const res = await fetch(`${API}/options`);
@@ -701,7 +679,7 @@
             });
         }
 
-        // ── Form submit ───────────────────────────────────────────────────────────
+        // On form submit
         document.getElementById('form').addEventListener('submit', async (e) => {
             e.preventDefault();
             clearResult();
@@ -741,7 +719,7 @@
             }
         });
 
-        // ── Render result ─────────────────────────────────────────────────────────
+        // Render the result of the model
         function renderResult(data) {
             const prob = data.probability;
             const isHigh = data.risk_label === 'High Risk';
@@ -774,7 +752,6 @@
             bar.style.background = isHigh ? '#ef4444' : '#22c55e';
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────────────
         function setLoading(on) {
             const btn = document.getElementById('btn');
             const text = document.getElementById('btn-text');
