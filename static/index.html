@@ -524,7 +524,7 @@
 
         <header>
             <p class="eyebrow">Gradient Boosting · AUC 0.986 · 9 features</p>
-            <h1>Bycatch <em>Risk</em><br>Predictor</h1>
+            <h1><em>DeepWatch</em> Bycatch <em>Risk</em><br>Predictor</h1>
             <p class="subtitle">Enter fishing conditions below. The model runs on the server and returns the estimated
                 probability of bycatch presence in real time.</p>
         </header>
@@ -676,7 +676,7 @@
         // ── Config ───────────────────────────────────────────────────────────────
         // Change this to your Render URL when deployed.
         // Leave as empty string '' when running locally (same origin via FastAPI).
-        const API = 'http://127.0.0.1:8000';
+        const API = 'https://deepwatch.onrender.com/';
 
         // ── Populate dropdowns from /options ─────────────────────────────────────
         async function loadOptions() {
