@@ -148,6 +148,6 @@ def predict(req: PredictRequest):
 
     return PredictResponse(
         probability = round(prob, 4),
-        risk_label  = "High Risk" if prob >= 0.5 else "Low Risk",
+        risk_label  = "High Risk" if prob >= 0.65 else "Low Risk",
         risk_pct    = f"{prob:.1%}",
     )
