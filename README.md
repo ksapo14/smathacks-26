@@ -62,4 +62,4 @@ random_state=42       # Reproducible results
 ### Frontend
 **Simple HTML/CSS/JS frontend**
 - Landing page with information about the DepepWatch initiative
-- Risk Predictor page with all input fields and submission field that outputs percentage on bars and metrics from the model
+- Risk Predictor page with all input fields and submission field. Outputs percentage on bars and metrics from the model.
