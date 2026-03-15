@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepWatch — Bycatch Risk Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo"><span class="logo-dot"></span>DeepWatch</a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/assessor" class="btn-nav">Risk Assessor →</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <canvas id="ocean-canvas"></canvas>
+  <div class="hero-inner">
+    <div class="hero-tag">NC Coastal Waters · ML-Powered</div>
+    <h1>Every cast leaves<br><span class="accent">an invisible wake.</span></h1>
+    <p class="hero-desc">Up to 40% of all marine catch is unintended bycatch — non-target species caught and killed. DeepWatch uses logistic regression trained on real fishing data to predict bycatch risk before you cast.</p>
+    <div class="hero-btns">
+      <a href="/assessor" class="btn-primary">Assess Your Risk</a>
+      <a href="#problem" class="btn-ghost">Learn More</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-n">38M</span><span class="stat-l">tons of bycatch discarded annually worldwide</span></div>
+    <div class="stat-sep"></div>
+    <div class="stat"><span class="stat-n">40%</span><span class="stat-l">of all marine catch is unintended</span></div>
+    <div class="stat-sep"></div>
+    <div class="stat"><span class="stat-n">650K</span><span class="stat-l">whales, dolphins &amp; seals killed per year</span></div>
+  </div>
+</section>
+
+<section class="section" id="problem">
+  <div class="section-inner">
+    <div class="eyebrow">The Problem</div>
+    <h2>A crisis hidden beneath the surface</h2>
+    <div class="cards3">
+      <div class="card reveal">
+        <div class="card-icon">🐢</div>
+        <h3>Sea Turtles</h3>
+        <p>All seven species of sea turtle are threatened or endangered. Longline and trawl fisheries off the NC coast are a leading cause of injury and mortality.</p>
+      </div>
+      <div class="card card-featured reveal">
+        <div class="card-icon">🎣</div>
+        <h3>Indiscriminate Gear</h3>
+        <p>Bottom trawls and gillnets cannot distinguish target from non-target species. Everything in their path is hauled aboard — most of it thrown back dead.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon">🐬</div>
+        <h3>Marine Mammals</h3>
+        <p>Dolphins, porpoises, and whales entangle in fishing gear daily. Many drown before they can be freed. North Carolina's coast is a major hotspot.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-dark">
+  <div class="section-inner split">
+    <div class="split-text reveal">
+      <div class="eyebrow">North Carolina</div>
+      <h2>Our coast.<br>Our responsibility.</h2>
+      <p>The NC coastline stretches 300+ miles, home to some of the Atlantic's richest fishing grounds — and its most fragile ecosystems. The Outer Banks, Pamlico Sound, and Cape Hatteras sit in the migration corridors of loggerhead turtles, spotted dolphins, and humpback whales.</p>
+      <p>Commercial fishing here generates over $100M per year — but the hidden cost in bycatch is enormous. NC DMF data shows tens of thousands of non-target interactions every year.</p>
+      <a href="/assessor" class="btn-primary" style="display:inline-block;margin-top:1.5rem;">Use the Risk Assessor</a>
+    </div>
+    <div class="split-map reveal">
+      <div class="map-card">
+        <svg viewBox="0 0 280 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="380" fill="#071624" rx="12"/>
+          <path d="M180,20 C188,55 192,90 185,130 C178,168 198,192 190,232 C182,270 165,292 148,330 C136,358 122,375 114,378" stroke="#22d3c8" stroke-width="2.5" stroke-dasharray="7,4" fill="none" opacity="0.7"/>
+          <path d="M180,20 C172,28 168,48 163,76 C158,104 154,124 150,152 C146,178 142,198 138,224 C134,248 130,268 126,292 C122,312 118,338 114,378 L55,378 L55,20 Z" fill="#0a2d3d" opacity="0.5"/>
+          <circle cx="178" cy="118" r="7" fill="#f97316" opacity="0.9"><animate attributeName="r" values="7;11;7" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.9;0.4;0.9" dur="2.5s" repeatCount="indefinite"/></circle>
+          <circle cx="188" cy="188" r="9" fill="#f97316" opacity="0.8"><animate attributeName="r" values="9;14;9" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0.3;0.8" dur="3s" repeatCount="indefinite"/></circle>
+          <circle cx="170" cy="255" r="6" fill="#eab308" opacity="0.7"><animate attributeName="r" values="6;9;6" dur="3.5s" repeatCount="indefinite"/></circle>
+          <text x="192" y="122" fill="#22d3c8" font-size="9" font-family="sans-serif" opacity="0.8">Outer Banks</text>
+          <text x="196" y="192" fill="#22d3c8" font-size="9" font-family="sans-serif" opacity="0.8">Cape Hatteras</text>
+          <text x="75" y="245" fill="#6a9aaa" font-size="9" font-family="sans-serif">Pamlico Sound</text>
+          <text x="20" y="360" fill="#22d3c8" font-size="8" font-family="sans-serif" opacity="0.5">● high risk  ● medium risk</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <div class="eyebrow">How It Works</div>
+    <h2>Prediction before the net hits water</h2>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Enter Conditions</h3>
+        <p>Provide your fishing location, target species, ocean temperature, current speed, migration pattern, and time of day.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Model Analyzes</h3>
+        <p>A logistic regression model — trained on 1,000 NC fishing records — computes the probability that conditions exceed a historical risk threshold.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Get Your Score</h3>
+        <p>Receive a precise probability score (0–100%) with a factor breakdown showing exactly what's driving your risk level.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="section-inner" style="text-align:center;padding-top:5rem;padding-bottom:5rem;">
+    <h2>The ocean doesn't get a second chance.</h2>
+    <p style="color:var(--muted);font-size:18px;margin-bottom:2rem;">Know your risk before you cast.</p>
+    <a href="/assessor" class="btn-primary btn-lg">Open the Risk Assessor</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <span class="logo"><span class="logo-dot"></span>DeepWatch</span>
+    <span style="color:var(--muted);font-size:13px;">SMathHacks 2026 · Under the Sea · NC Coastal Data</span>
+  </div>
+</footer>
+
+<script>
+// Animated ocean canvas
+const canvas = document.getElementById('ocean-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+function resize() {
+  W = canvas.width  = canvas.offsetWidth;
+  H = canvas.height = canvas.offsetHeight;
+}
+function initParticles() {
+  particles = Array.from({length:70}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*1.8+0.3,
+    vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.12-.04,
+    a: Math.random()
+  }));
+}
+function drawCanvas() {
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(34,211,200,${p.a*.45})`; ctx.fill();
+    p.x+=p.vx; p.y+=p.vy;
+    p.a+=(Math.random()-.5)*.015; p.a=Math.max(.05,Math.min(.9,p.a));
+    if(p.x<-10) p.x=W+10; if(p.x>W+10) p.x=-10;
+    if(p.y<-10) p.y=H+10; if(p.y>H+10) p.y=-10;
+  });
+  requestAnimationFrame(drawCanvas);
+}
+resize(); initParticles(); drawCanvas();
+window.addEventListener('resize',()=>{resize();initParticles();});
+
+// Scroll reveal
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('revealed'); });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+</script>
+</body>
+</html>
