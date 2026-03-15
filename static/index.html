@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bycatch Risk Predictor</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --ocean-deep: #040d14;
+            --ocean-mid: #071826;
+            --ocean-surf: #0c2333;
+            --ocean-foam: #0f2d42;
+            --teal: #00b4d8;
+            --teal-dim: #007ea3;
+            --teal-glow: rgba(0, 180, 216, 0.12);
+            --amber: #f4a942;
+            --red: #ef4444;
+            --green: #22c55e;
+            --text: #c8dde8;
+            --text-muted: #4d7a8a;
+            --text-dim: #2a4a5a;
+            --border: rgba(0, 180, 216, 0.12);
+            --border-mid: rgba(0, 180, 216, 0.22);
+            --mono: 'IBM Plex Mono', monospace;
+            --sans: 'IBM Plex Sans', sans-serif;
+            --display: 'Syne', sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--ocean-deep);
+            color: var(--text);
+            font-family: var(--sans);
+            font-size: 14px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated ocean background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 80%, rgba(0, 100, 160, 0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(0, 60, 100, 0.14) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Subtle grid texture */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 180, 216, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 180, 216, 0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* ── Header ──────────────────────────────── */
+        header {
+            margin-bottom: 52px;
+            animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .eyebrow {
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: var(--teal);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 1px;
+            background: var(--teal);
+        }
+
+        h1 {
+            font-family: var(--display);
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 700;
+            color: #e8f4f8;
+            line-height: 1.08;
+            letter-spacing: -0.02em;
+            margin-bottom: 14px;
+        }
+
+        h1 em {
+            font-style: normal;
+            color: var(--teal);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.65;
+            max-width: 480px;
+        }
+
+        /* ── Layout ──────────────────────────────── */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 740px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Form card ───────────────────────────── */
+        .form-card {
+            background: var(--ocean-mid);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            animation: rise 0.7s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .section-title {
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--teal-dim);
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .fields-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field.span2 {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        input[type="number"],
+        select {
+            background: var(--ocean-deep);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 13px;
+            padding: 10px 12px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            border-color: var(--teal-dim);
+            box-shadow: 0 0 0 3px var(--teal-glow);
+        }
+
+        input[type="number"]::placeholder {
+            color: var(--text-dim);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234d7a8a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        select option {
+            background: #071826;
+        }
+
+        .hint {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .field-sep {
+            grid-column: 1/-1;
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 4px 0;
+        }
+
+        /* Predict button */
+        .predict-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: var(--teal);
+            color: var(--ocean-deep);
+            border: none;
+            border-radius: 10px;
+            font-family: var(--display);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .predict-btn:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 28px rgba(0, 180, 216, 0.3);
+        }
+
+        .predict-btn:active {
+            transform: scale(0.99);
+        }
+
+        .predict-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(4, 13, 20, 0.25);
+            border-top-color: var(--ocean-deep);
+            border-radius: 50%;
+            animation: spin 0.65s linear infinite;
+            flex-shrink: 0;
+        }
+
+        /* ── Result panel ────────────────────────── */
+        .result-panel {
+            background: var(--ocean-mid);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            animation: rise 0.7s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+            position: sticky;
+            top: 24px;
+        }
+
+        .result-panel .section-title {
+            margin-bottom: 24px;
+        }
+
+        /* Gauge */
+        .gauge-wrap {
+            position: relative;
+            width: 160px;
+            height: 90px;
+            margin: 0 auto 24px;
+            overflow: visible;
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: var(--ocean-foam);
+            stroke-width: 10;
+            stroke-linecap: round;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s;
+            transform-origin: center;
+        }
+
+        .gauge-text {
+            font-family: var(--display);
+            font-size: 26px;
+            font-weight: 700;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: var(--text);
+            transition: fill 0.4s;
+        }
+
+        .gauge-sub {
+            font-family: var(--mono);
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: var(--text-muted);
+        }
+
+        /* Risk label badge */
+        .risk-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            transition: background 0.4s, color 0.4s, border-color 0.4s;
+            border: 1px solid transparent;
+        }
+
+        .risk-badge.idle {
+            background: var(--ocean-surf);
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+
+        .risk-badge.high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--red);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .risk-badge.low {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--green);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: background 0.4s;
+        }
+
+        .risk-badge.idle .badge-dot {
+            background: var(--text-muted);
+        }
+
+        .risk-badge.high .badge-dot {
+            background: var(--red);
+            box-shadow: 0 0 6px var(--red);
+        }
+
+        .risk-badge.low .badge-dot {
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+        }
+
+        /* Stats row */
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-cell {
+            background: var(--ocean-surf);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .stat-label {
+            font-family: var(--mono);
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-family: var(--mono);
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text);
+            transition: color 0.4s;
+        }
+
+        /* Probability bar */
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .bar-track {
+            height: 5px;
+            background: var(--ocean-foam);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s;
+            background: var(--teal-dim);
+        }
+
+        /* Model info */
+        .model-info {
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+
+        .model-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+
+        .model-info-key {
+            color: var(--text-muted);
+        }
+
+        .model-info-val {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text);
+        }
+
+        /* Error */
+        .error-box {
+            display: none;
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 8px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--red);
+            line-height: 1.5;
+        }
+
+        /* Animations */
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+
+        <header>
+            <p class="eyebrow">Gradient Boosting · AUC 0.986 · 9 features</p>
+            <h1>Bycatch <em>Risk</em><br>Predictor</h1>
+            <p class="subtitle">Enter fishing conditions below. The model runs on the server and returns the estimated
+                probability of bycatch presence in real time.</p>
+        </header>
+
+        <div class="layout">
+
+            <!-- Form -->
+            <div class="form-card">
+                <form id="form" autocomplete="off">
+
+                    <p class="section-title">Location</p>
+                    <div class="fields-grid">
+                        <div class="field">
+                            <label for="lat">Latitude (°)</label>
+                            <input type="number" id="lat" step="0.0001" min="-35" max="35" placeholder="e.g. 5.0"
+                                required>
+                            <span class="hint">–35 to +35</span>
+                        </div>
+                        <div class="field">
+                            <label for="lon">Longitude (°)</label>
+                            <input type="number" id="lon" step="0.0001" min="40" max="160" placeholder="e.g. 65.0"
+                                required>
+                            <span class="hint">40 to 160</span>
+                        </div>
+                    </div>
+
+                    <p class="section-title">Ocean conditions</p>
+                    <div class="fields-grid">
+                        <div class="field">
+                            <label for="sst">Sea surface temp (°C)</label>
+                            <input type="number" id="sst" step="0.1" min="5" max="35" placeholder="e.g. 28.2" required>
+                        </div>
+                        <div class="field">
+                            <label for="current_speed">Current speed (kn)</label>
+                            <input type="number" id="current_speed" step="0.01" min="0" max="10" placeholder="e.g. 2.1"
+                                required>
+                        </div>
+                        <div class="field">
+                            <label for="current_dir">Current direction</label>
+                            <select id="current_dir" required>
+                                <option value="" disabled selected>Select…</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="migration">Migration pattern</label>
+                            <select id="migration" required>
+                                <option value="" disabled selected>Select…</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <p class="section-title">Fishing context</p>
+                    <div class="fields-grid">
+                        <div class="field">
+                            <label for="hour">Hour of day (0–23)</label>
+                            <input type="number" id="hour" step="1" min="0" max="23" placeholder="e.g. 6" required>
+                        </div>
+                        <div class="field">
+                            <label for="fate">Species fate</label>
+                            <select id="fate" required>
+                                <option value="" disabled selected>Select…</option>
+                            </select>
+                        </div>
+                        <div class="field span2">
+                            <label for="species">Target species</label>
+                            <select id="species" required>
+                                <option value="" disabled selected>Select…</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="predict-btn" id="btn">
+                        <span id="btn-text">Run prediction</span>
+                    </button>
+
+                    <div class="error-box" id="error"></div>
+
+                </form>
+            </div>
+
+            <!-- Result panel -->
+            <div class="result-panel">
+                <p class="section-title">Model output</p>
+
+                <!-- Gauge SVG -->
+                <div class="gauge-wrap">
+                    <svg viewBox="0 0 160 90" width="160" height="90" overflow="visible">
+                        <!-- Background arc: semicircle, r=62, center 80,85 -->
+                        <path id="gauge-bg-path" d="M 18,85 A 62,62 0 0,1 142,85" class="gauge-bg" />
+                        <!-- Fill arc -->
+                        <path id="gauge-fill-path" d="M 18,85 A 62,62 0 0,1 142,85" class="gauge-fill" stroke="#007ea3"
+                            stroke-dasharray="195" stroke-dashoffset="195" />
+                        <text id="gauge-pct" class="gauge-text" x="80" y="72">—</text>
+                        <text class="gauge-sub" x="80" y="86">probability</text>
+                    </svg>
+                </div>
+
+                <!-- Risk badge -->
+                <div class="risk-badge idle" id="risk-badge">
+                    <span class="badge-dot"></span>
+                    <span id="risk-text">Awaiting input</span>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats">
+                    <div class="stat-cell">
+                        <div class="stat-label">Probability</div>
+                        <div class="stat-value" id="stat-prob">—</div>
+                    </div>
+                    <div class="stat-cell">
+                        <div class="stat-label">Decision</div>
+                        <div class="stat-value" id="stat-decision">—</div>
+                    </div>
+                </div>
+
+                <!-- Bar -->
+                <div class="bar-label">
+                    <span>Low risk</span><span>High risk</span>
+                </div>
+                <div class="bar-track">
+                    <div class="bar-fill" id="bar-fill"></div>
+                </div>
+
+                <!-- Model info -->
+                <div class="model-info">
+                    <div class="model-info-row">
+                        <span class="model-info-key">Algorithm</span>
+                        <span class="model-info-val">Gradient Boosting</span>
+                    </div>
+                    <div class="model-info-row">
+                        <span class="model-info-key">Test AUC</span>
+                        <span class="model-info-val">0.986</span>
+                    </div>
+                    <div class="model-info-row">
+                        <span class="model-info-key">CV AUC</span>
+                        <span class="model-info-val">0.994 ± 0.003</span>
+                    </div>
+                    <div class="model-info-row">
+                        <span class="model-info-key">Threshold</span>
+                        <span class="model-info-val">0.50</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ── Config ───────────────────────────────────────────────────────────────
+        // Change this to your Render URL when deployed.
+        // Leave as empty string '' when running locally (same origin via FastAPI).
+        const API = 'http://127.0.0.1:8000';
+
+        // ── Populate dropdowns from /options ─────────────────────────────────────
+        async function loadOptions() {
+            try {
+                const res = await fetch(`${API}/options`);
+                const opts = await res.json();
+                fill('current_dir', opts.current_dir);
+                fill('migration', opts.migration);
+                fill('species', opts.species);
+                fill('fate', opts.fate);
+            } catch {
+                showError('Cannot reach the API. Make sure the FastAPI server is running on port 8000.');
+            }
+        }
+
+        function fill(id, values) {
+            const sel = document.getElementById(id);
+            values.forEach(v => {
+                const o = document.createElement('option');
+                o.value = o.textContent = v;
+                sel.appendChild(o);
+            });
+        }
+
+        // ── Form submit ───────────────────────────────────────────────────────────
+        document.getElementById('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearResult();
+            setLoading(true);
+
+            const body = {
+                lat: parseFloat(document.getElementById('lat').value),
+                lon: parseFloat(document.getElementById('lon').value),
+                sst: parseFloat(document.getElementById('sst').value),
+                current_speed: parseFloat(document.getElementById('current_speed').value),
+                current_dir: document.getElementById('current_dir').value,
+                hour: parseInt(document.getElementById('hour').value, 10),
+                migration: document.getElementById('migration').value,
+                species: document.getElementById('species').value,
+                fate: document.getElementById('fate').value,
+            };
+
+            try {
+                const res = await fetch(`${API}/predict`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.detail || `Server error ${res.status}`);
+                }
+
+                const data = await res.json();
+                renderResult(data);
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // ── Render result ─────────────────────────────────────────────────────────
+        function renderResult(data) {
+            const prob = data.probability;
+            const isHigh = data.risk_label === 'High Risk';
+            const pct = (prob * 100).toFixed(1);
+
+            // Gauge — arc total length ≈ 195, fill proportionally
+            const arcLen = 195;
+            const offset = arcLen - (prob * arcLen);
+            const fill = document.getElementById('gauge-fill-path');
+            fill.style.strokeDashoffset = offset;
+            fill.style.stroke = isHigh ? '#ef4444' : '#22c55e';
+
+            document.getElementById('gauge-pct').textContent = pct + '%';
+            document.getElementById('gauge-pct').style.fill = isHigh ? '#ef4444' : '#22c55e';
+
+            // Badge
+            const badge = document.getElementById('risk-badge');
+            badge.className = 'risk-badge ' + (isHigh ? 'high' : 'low');
+            document.getElementById('risk-text').textContent = data.risk_label;
+
+            // Stats
+            document.getElementById('stat-prob').textContent = data.risk_pct;
+            document.getElementById('stat-decision').textContent = isHigh ? 'Present' : 'Absent';
+            document.getElementById('stat-prob').style.color = isHigh ? '#ef4444' : '#22c55e';
+            document.getElementById('stat-decision').style.color = isHigh ? '#ef4444' : '#22c55e';
+
+            // Bar
+            const bar = document.getElementById('bar-fill');
+            bar.style.width = pct + '%';
+            bar.style.background = isHigh ? '#ef4444' : '#22c55e';
+        }
+
+        // ── Helpers ───────────────────────────────────────────────────────────────
+        function setLoading(on) {
+            const btn = document.getElementById('btn');
+            const text = document.getElementById('btn-text');
+            btn.disabled = on;
+            if (on) {
+                btn.innerHTML = '<span class="spinner"></span><span>Running model…</span>';
+            } else {
+                btn.innerHTML = '<span id="btn-text">Run prediction</span>';
+            }
+        }
+
+        function clearResult() {
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('gauge-fill-path').style.strokeDashoffset = 195;
+            document.getElementById('gauge-pct').textContent = '—';
+            document.getElementById('gauge-pct').style.fill = 'var(--text)';
+            document.getElementById('risk-badge').className = 'risk-badge idle';
+            document.getElementById('risk-text').textContent = 'Computing…';
+            document.getElementById('stat-prob').textContent = '—';
+            document.getElementById('stat-decision').textContent = '—';
+            document.getElementById('bar-fill').style.width = '0%';
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error');
+            el.textContent = 'Error: ' + msg;
+            el.style.display = 'block';
+        }
+
+        loadOptions();
+    </script>
+</body>
+
+</html>
