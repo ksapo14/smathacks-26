@@ -116,9 +116,16 @@ class PredictResponse(BaseModel):
 # ROUTES
 # ---------------------------------------------------------------------------
 
+
 @app.get("/")
-def serve_ui():
-    """Serve the HTML frontend."""
+def serve_home():
+    """Serve the homepage."""
+    return FileResponse("static/home.html")
+
+
+@app.get("/assessor")
+def serve_assessor():
+    """Serve the risk assessor UI."""
     return FileResponse("static/index.html")
 
 
