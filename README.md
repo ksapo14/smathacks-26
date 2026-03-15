@@ -26,7 +26,7 @@ This tool uses a Gradient Boosting Classifier to predict bycatch probability bas
 9. Species Fate (encoded)
 
 ### Algorithm
-**Gradient Boosting Classifier** - An ensemble method that builds multiple decision trees sequentially, with each tree correcting errors from previous ones.
+**Gradient Boosting Classifier** - An ensemble method that builds multiple decision trees sequentially, with each tree correcting errors from previous ones. An efficient and fast algorithm that provides high accuracy as opposed to some more complex algorithms that have a boot time greater than what is allowed for the Render free plan.
 
 ### Model Configuration
 ```python
