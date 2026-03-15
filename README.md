@@ -1,135 +1,32 @@
-# Bycatch Risk Prediction API
+# DeepWatch - Bycatch Risk Prediction
+## [DeepWatch Link](https://deepwatch.onrender.com)
 
-A machine learning-powered FastAPI backend that predicts the risk of bycatch (unintended catch of marine species) in fishing operations based on environmental and operational parameters.
 
-## 📋 Overview
+## Overview
 
-This API uses a Gradient Boosting Classifier to predict bycatch probability based on:
+This tool uses a Gradient Boosting Classifier to predict bycatch probability based on:
 - Geographic location (latitude/longitude)
 - Environmental conditions (sea surface temperature, ocean currents)
 - Temporal factors (time of day)
 - Fishing operation details (target species, migration patterns, species fate)
 
-## 🚀 Quick Start
+## Machine Learning Model
+### Data
+**Simulated Data** - Due to limitations of features within open-source datasets, a dataset was simulated with slight noise to train a model for future use in actual datasets.
 
-### Prerequisites
-
-- Python 3.7+
-- pip package manager
-
-### Installation
-
-1. **Clone or download this project**
-
-2. **Install dependencies**
-   ```bash
-   pip install fastapi uvicorn pandas scikit-learn openpyxl
-   ```
-
-3. **Prepare your data**
-   - Ensure `bycatch_dataset.xlsx` is in the project root
-   - The Excel file should have a sheet named `Bycatch_Data`
-
-4. **Create a `static` folder for the frontend**
-   ```bash
-   mkdir static
-   ```
-   Place your `index.html` (web interface) in this folder.
-
-### Running the Server
-
-```bash
-uvicorn main:app --reload
-```
-
-The API will start at: `http://127.0.0.1:8000`
-
-- **Web Interface**: http://127.0.0.1:8000
-- **Interactive API Docs**: http://127.0.0.1:8000/docs
-- **Alternative Docs**: http://127.0.0.1:8000/redoc
-
-## 📊 Data Requirements
-
-Your Excel file (`bycatch_dataset.xlsx`) must contain the following columns:
-
-### Required Columns
-
-| Column Name | Type | Description |
-|------------|------|-------------|
-| `Latitude (°)` | Float | Geographic latitude (-35 to 35) |
-| `Longitude (°)` | Float | Geographic longitude (40 to 160) |
-| `Sea Surface Temp (°C)` | Float | Water temperature (5 to 35°C) |
-| `Current Speed (kn)` | Float | Ocean current speed (0 to 10 knots) |
-| `Current Direction` | String | One of: N, NE, E, SE, S, SW, W, NW |
-| `Hour of Day (0–23)` | Integer | Time of fishing operation (0-23) |
-| `Migration Pattern` | String | Northward, Southward, Eastward, Westward, Stationary |
-| `Target Species` | String | Yellowfin Tuna, Bigeye Tuna, Wahoo, Mahi-Mahi, Striped Marlin |
-| `Species Fate` | String | Kept or Discarded |
-| `Bycatch Present` | String | "Present" or "Absent" (target variable) |
-
-## 🔌 API Endpoints
-
-### 1. GET `/`
-Serves the HTML frontend interface.
-
-**Response**: HTML page
-
----
-
-### 2. GET `/options`
-Returns valid values for dropdown fields in the UI.
-
-**Response**:
-```json
-{
-  "current_dir": ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
-  "migration": ["Northward", "Southward", "Eastward", "Westward", "Stationary"],
-  "species": ["Yellowfin Tuna", "Bigeye Tuna", "Wahoo", "Mahi-Mahi", "Striped Marlin"],
-  "fate": ["Kept", "Discarded"]
-}
-```
-
----
-
-### 3. POST `/predict`
-Predicts bycatch risk for given parameters.
-
-**Request Body**:
-```json
-{
-  "lat": 5.0,
-  "lon": 65.0,
-  "sst": 28.2,
-  "current_speed": 2.1,
-  "current_dir": "NE",
-  "hour": 6,
-  "migration": "Northward",
-  "species": "Yellowfin Tuna",
-  "fate": "Kept"
-}
-```
-
-**Validation Rules**:
-- `lat`: -35 to 35
-- `lon`: 40 to 160
-- `sst`: 5 to 35
-- `current_speed`: 0 to 10
-- `hour`: 0 to 23
-- Categorical fields must match allowed values
-
-**Response**:
-```json
-{
-  "probability": 0.7234,
-  "risk_label": "High Risk",
-  "risk_pct": "72.3%"
-}
-```
-
-## 🤖 Machine Learning Model
+#### Features Used (9 total)
+1. Latitude
+2. Longitude
+3. Sea Surface Temperature
+4. Current Speed
+5. Current Direction (encoded)
+6. Hour of Day
+7. Migration Pattern (encoded)
+8. Target Species (encoded)
+9. Species Fate (encoded)
 
 ### Algorithm
-**Gradient Boosting Classifier** - An ensemble method that builds multiple decision trees sequentially, with each tree correcting errors from previous ones.
+**Gradient Boosting Classifier** - An ensemble method that builds multiple decision trees sequentially, with each tree correcting errors from previous ones. An efficient and fast algorithm that provides high accuracy as opposed to some more complex algorithms that have a boot time greater than what is allowed for the Render free plan.
 
 ### Model Configuration
 ```python
@@ -149,152 +46,39 @@ random_state=42       # Reproducible results
 5. **Model Training**: Fits Gradient Boosting model
 6. **Persistence**: Stores model and encoders in memory
 
-### Features Used (9 total)
-1. Latitude
-2. Longitude
-3. Sea Surface Temperature
-4. Current Speed
-5. Current Direction (encoded)
-6. Hour of Day
-7. Migration Pattern (encoded)
-8. Target Species (encoded)
-9. Species Fate (encoded)
-
-## 📁 Project Structure
-
-```
-bycatch-risk-api/
-├── main.py                    # FastAPI backend (this file)
-├── bycatch_dataset.xlsx       # Training data
-├── static/
-│   └── index.html            # Web interface
-├── README.md                  # This file
-└── requirements.txt           # (Optional) Dependency list
-```
-
-## 🛠️ Technical Details
-
-### CORS Configuration
-The API allows cross-origin requests from any domain (`allow_origins=["*"]`). For production, restrict this to your specific domain:
-
-```python
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://yourdomain.com"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-```
-
-### Label Encoding
-Categorical variables are converted to integers using scikit-learn's `LabelEncoder`:
-- **Current Direction**: N→0, NE→1, E→2, etc.
-- **Migration Pattern**: Northward→0, Southward→1, etc.
-- **Target Species**: Yellowfin Tuna→0, Bigeye Tuna→1, etc.
-- **Species Fate**: Kept→0, Discarded→1
-
-Encoders are saved and reused for predictions to ensure consistency.
-
 ### Risk Classification
-- **High Risk**: Probability ≥ 50%
-- **Low Risk**: Probability < 50%
+- **High Risk**: Probability ≥ 65%
+- **Low Risk**: Probability < 65%
 
-## 🧪 Testing the API
+## Tech Stack
+### All hosted on Render
 
-### Using cURL
-```bash
-curl -X POST "http://127.0.0.1:8000/predict" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "lat": 5.0,
-    "lon": 65.0,
-    "sst": 28.2,
-    "current_speed": 2.1,
-    "current_dir": "NE",
-    "hour": 6,
-    "migration": "Northward",
-    "species": "Yellowfin Tuna",
-    "fate": "Kept"
-  }'
-```
+### Backend
+**FastAPI Backend**
+- Getting values from input fields in the frontend
+- Applying the machine learning algorithm to get the probability
+- Providing this output to the frontend
 
-### Using Python
-```python
-import requests
+### Frontend
+**Simple HTML/CSS/JS frontend**
+- Landing page with information about the DepepWatch initiative
+- Risk Predictor page with all input fields and submission field. Outputs percentage on bars and metrics from the model.
 
-response = requests.post(
-    "http://127.0.0.1:8000/predict",
-    json={
-        "lat": 5.0,
-        "lon": 65.0,
-        "sst": 28.2,
-        "current_speed": 2.1,
-        "current_dir": "NE",
-        "hour": 6,
-        "migration": "Northward",
-        "species": "Yellowfin Tuna",
-        "fate": "Kept"
-    }
-)
+## Inspiration
 
-print(response.json())
-```
+Sea turtles and dolphins are really cute. Thousands of them are also needlessly killed every day.
 
-### Using the Interactive Docs
-Visit http://127.0.0.1:8000/docs and use the built-in "Try it out" feature.
+Commercial fishermen often end up catching marine animals they didn't intend to catch, such as sea turtles, dolphins, seals, sharks, and juvenile fish, discarding them after catching them. This is  **bycatch**. A prominent issue, bycatch, threatens endangered species and destroys marine ecosystems. Currently, there are organizations that are helping fisheries manage unwanted catch, but our machine learning approach assesses risk levels of bycatch for anyone with just a click of a button.
 
-## ⚠️ Error Handling
+## Challenges we ran into
 
-The API automatically validates inputs and returns clear error messages:
+Finding a real-world dataset with the combination of features we needed was genuinely difficult. Most publicly available bycatch datasets are either poorly formatted, heavily aggregated, or restricted to categorical variables that cannot support numerical model training. We simulated our training data from known IOTC catch patterns, which gave us clean numerical inputs but introduced overfitting risk, since validation was performed on data drawn from the same distribution. We were deliberate about acknowledging this limitation and structured the model to be straightforwardly retrained once real observational data becomes available.
 
-- **Invalid numeric range**: Returns 422 with details
-- **Missing required field**: Returns 422 with field name
-- **Invalid categorical value**: Defaults to first encoder class (graceful degradation)
+## Accomplishments we are proud of
 
-## 🔄 Model Retraining
+Within a single day, we built a functioning end-to-end system: a trained machine learning model, a REST API backend, and an interactive frontend, all connected and deployed to the web. The fact that a fisherman can open a browser, enter their fishing conditions, and receive a data-driven risk assessment in under a second felt like a genuine proof of concept for what accessible, practical environmental intelligence could look like in the real world.
 
-The model trains automatically when the server starts. To retrain with new data:
+## What we learned
 
-1. Update `bycatch_dataset.xlsx`
-2. Restart the server: `uvicorn main:app --reload`
-
-For continuous operation, consider implementing:
-- Periodic retraining schedules
-- Model versioning
-- A/B testing between model versions
-
-## 📈 Performance Considerations
-
-- **Startup time**: ~2-5 seconds (model training)
-- **Prediction latency**: <10ms per request
-- **Concurrent requests**: FastAPI handles async requests efficiently
-- **Memory usage**: Model + encoders ~10-50 MB depending on data size
-
-## 🚧 Production Deployment
-
-For production use, consider:
-
-1. **Use a production server**:
-   ```bash
-   pip install gunicorn
-   gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker
-   ```
-
-2. **Environment variables** for configuration:
-   ```python
-   import os
-   DATA_PATH = os.getenv("DATA_PATH", "bycatch_dataset.xlsx")
-   ```
-
-3. **Logging** for monitoring:
-   ```python
-   import logging
-   logging.basicConfig(level=logging.INFO)
-   ```
-
-4. **HTTPS** with reverse proxy (nginx/Apache)
-
-5. **Rate limiting** to prevent abuse
-
-6. **Model persistence** (save to disk, load on startup)
+We learned how to architect a full-stack machine learning application from scratch, covering data simulation, model training, API design with FastAPI, frontend integration, and cloud deployment on Render. We also developed a clearer understanding of the real-world constraints around environmental datasets and why domain-specific data collection is often the hardest part of any conservation-focused machine learning project. Working under time pressure using GitHub reinforced the value of clean separation between system components so teammates could build in parallel without blocking each other.
 
