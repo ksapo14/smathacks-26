@@ -1,11 +1,3 @@
-<<<<<<< Updated upstream
-// assessor.js
-// This file ONLY handles UI rendering.
-// ALL risk calculation happens in app.py via regression.
-// This file does zero math — it just sends inputs to /predict and displays what comes back.
-
-=======
->>>>>>> Stashed changes
 const FACTOR_COLORS = {
   'Sea Surface Temp':  '#f97316',
   'Hour of Day':       '#eab308',
