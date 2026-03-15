@@ -1,8 +1,11 @@
+<<<<<<< Updated upstream
 // assessor.js
 // This file ONLY handles UI rendering.
 // ALL risk calculation happens in app.py via regression.
 // This file does zero math — it just sends inputs to /predict and displays what comes back.
 
+=======
+>>>>>>> Stashed changes
 const FACTOR_COLORS = {
   'Sea Surface Temp':  '#f97316',
   'Hour of Day':       '#eab308',
@@ -33,7 +36,7 @@ async function runAssessment() {
   };
 
   try {
-    // Send to Flask backend — logistic regression runs here
+    // Send to backend
     const response = await fetch('/predict', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -45,7 +48,7 @@ async function runAssessment() {
     // Get result from model
     const data = await response.json();
 
-    // Render result — everything displayed comes directly from the model response
+    // Render result
     renderResult(data);
 
   } catch (e) {
@@ -58,13 +61,6 @@ async function runAssessment() {
 }
 
 function renderResult(data) {
-  // data.score           = raw probability 0-1 from model.predict_proba
-  // data.percent         = score * 100
-  // data.level           = HIGH / MEDIUM / LOW
-  // data.threshold       = 65th percentile threshold used to define risk label
-  // data.threshold_pct   = threshold * 100
-  // data.factors         = display-only factor breakdown (0-100 per factor)
-
   const { score, percent, level, threshold_pct, factors } = data;
 
   // Show result panel
@@ -80,7 +76,7 @@ function renderResult(data) {
   const ring = document.getElementById('donutRing');
   ring.style.strokeDashoffset = offset;
 
-  // Colour based on level
+  // Color based on level
   const colours = { HIGH: '#f97316', MEDIUM: '#eab308', LOW: '#22c55e' };
   const colour  = colours[level] || '#22d3c8';
   ring.style.stroke = colour;
@@ -103,7 +99,7 @@ function renderResult(data) {
   document.getElementById('thresholdRow').innerHTML =
     `Risk threshold: <span style="color:${colour};font-weight:600">${threshold_pct}%</span> of max environmental index`;
 
-  // Factor bars (display only — do not affect score)
+  // Factor bars
   const fl = document.getElementById('factorList');
   fl.innerHTML = '';
   Object.entries(factors).forEach(([name, pct]) => {
@@ -122,12 +118,11 @@ function renderResult(data) {
 
   // Recommendation
   const recs = {
-    HIGH:   'Consider shifting to midday fishing (10am–2pm), targeting Wahoo or Mahi-Mahi in cooler waters (below 22°C), and areas with slower currents.',
+    HIGH:   'Consider shifting to midday fishing (10am-2pm), targeting Wahoo or Mahi-Mahi in cooler waters (below 22°C), and areas with slower currents.',
     MEDIUM: 'Small changes to time of day or location could push conditions below the risk threshold.',
     LOW:    'Conditions are well within safe bounds. Standard monitoring practices are sufficient.',
   };
   document.getElementById('recBox').textContent = recs[level];
 
-  // Scroll sidebar into view on mobile
   document.querySelector('.result-box').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
