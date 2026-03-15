@@ -298,18 +298,3 @@ For production use, consider:
 
 6. **Model persistence** (save to disk, load on startup)
 
-## 📝 License
-
-[Add your license here]
-
-## 🤝 Contributing
-
-[Add contribution guidelines here]
-
-## 📧 Contact
-
-[Add contact information here]
-
----
-
-**Note**: This is a demonstration/educational project. For real-world marine conservation applications, consult with marine biologists and validate the model with domain experts.
