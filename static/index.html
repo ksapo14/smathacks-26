@@ -487,6 +487,16 @@
             line-height: 1.5;
         }
 
+        h1 a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        h1 a:hover em {
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
         @keyframes rise {
             from {
                 opacity: 0;
@@ -512,7 +522,7 @@
 
         <header>
             <p class="eyebrow">Don't take chances with bycatch</p>
-            <h1><em>DeepWatch</em> Bycatch <em>Risk</em><br>Predictor</h1>
+            <h1><a href='https://deepwatch.onrender.com/'><em>DeepWatch</em></a> Bycatch <em>Risk</em><br>Predictor</h1>
             <p class="subtitle">Enter fishing conditions below. Our algorithm will calulate probability of bycatch.</p>
         </header>
 
@@ -564,7 +574,7 @@
                     <p class="section-title">Fishing context</p>
                     <div class="fields-grid">
                         <div class="field">
-                            <label for="hour">Hour of day (0–23)</label>
+                            <label for="hour">Hour of day (0-23)</label>
                             <input type="number" id="hour" step="1" min="0" max="23" placeholder="e.g. 6" required>
                         </div>
                         <div class="field">
