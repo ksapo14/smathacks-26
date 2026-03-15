@@ -1,4 +1,6 @@
 # DeepWatch - Bycatch Risk Prediction
+## [DeepWatch Link](https://deepwatch.onrender.com)
+
 
 ## Overview
 
@@ -9,6 +11,19 @@ This tool uses a Gradient Boosting Classifier to predict bycatch probability bas
 - Fishing operation details (target species, migration patterns, species fate)
 
 ## Machine Learning Model
+### Data
+**Simulated Data** - Due to limitations of features within open-source datasets, a dataset was simulated with slight noise to train a model for future use in actual datasets.
+
+#### Features Used (9 total)
+1. Latitude
+2. Longitude
+3. Sea Surface Temperature
+4. Current Speed
+5. Current Direction (encoded)
+6. Hour of Day
+7. Migration Pattern (encoded)
+8. Target Species (encoded)
+9. Species Fate (encoded)
 
 ### Algorithm
 **Gradient Boosting Classifier** - An ensemble method that builds multiple decision trees sequentially, with each tree correcting errors from previous ones.
@@ -31,17 +46,20 @@ random_state=42       # Reproducible results
 5. **Model Training**: Fits Gradient Boosting model
 6. **Persistence**: Stores model and encoders in memory
 
-### Features Used (9 total)
-1. Latitude
-2. Longitude
-3. Sea Surface Temperature
-4. Current Speed
-5. Current Direction (encoded)
-6. Hour of Day
-7. Migration Pattern (encoded)
-8. Target Species (encoded)
-9. Species Fate (encoded)
-
 ### Risk Classification
 - **High Risk**: Probability ≥ 65%
 - **Low Risk**: Probability < 65%
+
+## Tech Stack
+### All hosted on Render
+
+### Backend
+**FastAPI Backend**
+- Getting values from input fields in the frontend
+- Applying the machine learning algorithm to get the probability
+- Providing this output to the frontend
+
+### Frontend
+**Simple HTML/CSS/JS frontend**
+- Landing page with information about the DepepWatch initiative
+- Risk Predictor page with all input fields and submission field that outputs percentage on bars and metrics from the model
